@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style
+        name="PolarThemeLogo" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/mainColor500</item>
+        <item name="colorPrimaryDark">@color/mainColor700</item>
+        <item name="colorAccent">@color/accentColorA200</item>
+
+        <item name="actionBarStyle">@style/MyActionBarLogo</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>

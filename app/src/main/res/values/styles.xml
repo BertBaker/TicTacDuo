@@ -1,0 +1,8 @@
+<resources>
+
+    <style name="MyActionBarLogo" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/mainColor500</item>
+        <item name="displayOptions">useLogo</item>
+    </style>
+
+</resources>
