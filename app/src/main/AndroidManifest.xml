@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:versionCode="1"
     android:versionName="1.0"
-    package="com.example.android.tictacduo">
+    package="com.gmail.bertdbaker.tictacduo">
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -17,7 +17,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name="com.example.android.tictacduo.MainActivity"
+            android:name="com.gmail.bertdbaker.tictacduo.MainActivity"
             android:theme="@style/PolarThemeLogo"
             android:windowSoftInputMode="adjustPan">
 
@@ -34,16 +34,16 @@
 
 
         <activity
-            android:name="com.example.android.tictacduo.PlayPhone1" />
+            android:name="com.gmail.bertdbaker.tictacduo.PlayPhone1" />
 
         <activity
-            android:name="com.example.android.tictacduo.PlayPhoneN" />
+            android:name="com.gmail.bertdbaker.tictacduo.PlayPhoneN" />
 
         <activity
-            android:name="com.example.android.tictacduo.PlaySharing" />
+            android:name="com.gmail.bertdbaker.tictacduo.PlaySharing" />
 
         <activity
-            android:name="com.example.android.tictacduo.PlayByBluetooth" />
+            android:name="com.gmail.bertdbaker.tictacduo.PlayByBluetooth" />
 
         <meta-data
             android:name="com.google.android.gms.version"

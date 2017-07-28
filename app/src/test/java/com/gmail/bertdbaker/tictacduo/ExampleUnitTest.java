@@ -1,4 +1,4 @@
-package com.example.android.tictacduo;
+package com.gmail.bertdbaker.tictacduo;
 
 import org.junit.Test;
 

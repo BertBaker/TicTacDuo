@@ -1,14 +1,13 @@
-package com.example.android.tictacduo;
+package com.gmail.bertdbaker.tictacduo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-public class PlayByBluetooth
+public class MainActivity
         extends AppCompatActivity
 {
     @SuppressLint({"NewApi"})
@@ -22,7 +21,10 @@ public class PlayByBluetooth
     }
 
     public void playByBluetooth(View paramView)
-    {// ignore this button click
+    {
+        startActivity(new Intent(this, PlayByBluetooth.class));
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     public void playPhone(View view)
@@ -43,3 +45,4 @@ public class PlayByBluetooth
         finish();
     }
 }
+
