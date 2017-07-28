@@ -1,8 +1,9 @@
 <resources>
 
-    <style name="MyActionBarLogo" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/mainColor500</item>
-        <item name="displayOptions">useLogo</item>
+    <style name="MyActionBarLogo" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/white</item>
+        <item name="logo">@drawable/tictacduo</item>
+        <item name="displayOptions">useLogo|showHome</item>
     </style>
 
 </resources>

@@ -17,7 +17,9 @@
         android:supportsRtl="true">
 
         <activity
-            android:name="com.example.android.tictacduo.MainActivity">
+            android:name="com.example.android.tictacduo.MainActivity"
+            android:theme="@style/PolarThemeLogo"
+            android:windowSoftInputMode="adjustPan">
 
             <intent-filter>
 
@@ -28,6 +30,8 @@
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
 
         <activity
             android:name="com.example.android.tictacduo.PlayPhone1" />

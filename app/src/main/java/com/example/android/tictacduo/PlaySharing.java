@@ -49,7 +49,7 @@ public class PlaySharing extends AppCompatActivity {
     }
 
     AlertDialog.Builder alert;
-    public void displayAlert(View paramView){this.alert.show();}
+    public void displayAlert(View paramView){alert.show();}
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -61,20 +61,20 @@ public class PlaySharing extends AppCompatActivity {
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        this.playSharingButton = ((RadioButton)findViewById(R.id.play_sharing_button));
-        this.playSharingButton.setChecked(true);
+        playSharingButton = ((RadioButton)findViewById(R.id.play_sharing_button));
+        playSharingButton.setChecked(true);
 
-        this.message = ((TextView)findViewById(R.id.message));
-        this.redoText = ((TextView)findViewById(R.id.redo_text));
-        this.undoText = ((TextView)findViewById(R.id.undo_text));
+        message = ((TextView)findViewById(R.id.message));
+        redoText = ((TextView)findViewById(R.id.redo_text));
+        undoText = ((TextView)findViewById(R.id.undo_text));
 
-        this.redoGraphic = ((ImageView)findViewById(R.id.redo_graphic));
-        this.undoGraphic = ((ImageView)findViewById(R.id.undo_graphic));
-        this.winningLine = ((ImageView)findViewById(R.id.winning_line));
+        redoGraphic = ((ImageView)findViewById(R.id.redo_graphic));
+        undoGraphic = ((ImageView)findViewById(R.id.undo_graphic));
+        winningLine = ((ImageView)findViewById(R.id.winning_line));
 
         int i = 0;
-        while (i < this.moveTracker.length) {
-            this.moveTracker[i] = new moveTrack();
+        while (i < moveTracker.length) {
+            moveTracker[i] = new moveTrack();
             i += 1;}
 
         GridView gridview = (GridView)findViewById(R.id.gridview);
@@ -144,18 +144,18 @@ public class PlaySharing extends AppCompatActivity {
         localBundle.putInt("PROGRESS", 50);
         localIntent.putExtras(localBundle);
 
-        this.alert = new AlertDialog.Builder(this);
-        this.alert.setPositiveButton("YES", new DialogInterface.OnClickListener()
+        alert = new AlertDialog.Builder(this);
+        alert.setPositiveButton("YES", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                PlaySharing.this.startActivity(localIntent);
-                PlaySharing.this.overridePendingTransition(0, 0);
-                PlaySharing.this.finish();
+                startActivity(localIntent);
+                overridePendingTransition(0, 0);
+                finish();
             }
         });
-        this.alert.setNegativeButton("NO", new DialogInterface.OnClickListener()
+        alert.setNegativeButton("NO", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -163,7 +163,7 @@ public class PlaySharing extends AppCompatActivity {
                 return;
             }
         });
-        this.alert.setOnCancelListener(new DialogInterface.OnCancelListener()
+        alert.setOnCancelListener(new DialogInterface.OnCancelListener()
         {
             @Override
             public void onCancel(DialogInterface dialog)
@@ -173,8 +173,8 @@ public class PlaySharing extends AppCompatActivity {
         });
 
         playPhoneButton.setChecked(false);
-        this.alert.setMessage("Do you want to start over, and play against the phone?");
-        this.alert.show();
+        alert.setMessage("Do you want to start over, and play against the phone?");
+        alert.show();
     }
 
     public void playSharing(View view) {
@@ -465,4 +465,19 @@ public class PlaySharing extends AppCompatActivity {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

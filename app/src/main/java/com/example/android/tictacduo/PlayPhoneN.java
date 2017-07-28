@@ -142,14 +142,17 @@ public class PlayPhoneN extends AppCompatActivity {
                 flagHumanTookCenter = (flagHumanTookCenter || (position == 4));
 
                 gameOver = checkBoard();
-                xTurn = !xTurn;
-                Log.i("GridView", "xTurn = " + xTurn);
-                message.setText("My Turn");
-                new Handler().postDelayed(new Runnable() {
-                    public void run() {
-                        phoneTurn();
-                    }
-                }, 700L);
+
+                if (!gameOver) {
+                    xTurn = !xTurn;
+                    Log.i("GridView", "xTurn = " + xTurn);
+                    message.setText("My Turn");
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            phoneTurn();
+                        }
+                    }, 700L);
+                }
             }
         });
     }
@@ -305,10 +308,12 @@ public class PlayPhoneN extends AppCompatActivity {
 
         gameOver = checkBoard();
 
-        xTurn = !xTurn;
+        if (!gameOver) {
+            xTurn = !xTurn;
+            Log.i("phoneTurn", "xTurn = " + xTurn);
+            message.setText("Your Turn");
+            }
 
-        Log.i("phoneTurn", "xTurn = " + xTurn);
-        message.setText("Your Turn");
         return;
     }
 
@@ -606,7 +611,7 @@ public class PlayPhoneN extends AppCompatActivity {
         }
         if ((cellState[6] == 'O') && (cellState[4] == 'O') && (cellState[2] == 'O')) {
             winningLine.setImageResource(R.drawable.diagonal2);
-            if (phoneFirst.booleanValue()) {message.setText("You Win!");} else {message.setText("I Win!");}
+            if (phoneFirst) {message.setText("You Win!");} else {message.setText("I Win!");}
             return true;
         }
         if (move == 8)
@@ -686,6 +691,7 @@ public class PlayPhoneN extends AppCompatActivity {
             return 0L;
         }
 
+        // create a new ImageView for each item referenced by the Adapter
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView;
             if (convertView == null) {
@@ -694,11 +700,26 @@ public class PlayPhoneN extends AppCompatActivity {
                 imageView.setLayoutParams(new GridView.LayoutParams(50, 50));
                 imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setPadding(2, 2, 2, 2);
-            } else {
-                imageView = (ImageView)convertView;
-            }
 
-            imageView.setImageResource(mThumbIds[position]);
+            } else {
+                imageView = (ImageView) convertView;}
+
+            if (viewFinder[position] == null) {
+                viewFinder[position] = imageView;
+                Log.i("getView", "position = " + position);
+                // note this code below is totally wrong, this is not the place to start the game, but I can't figure out where else
+                // to put this so I am assured the grid is created before starting
+                if (position == 8) {
+                    if (phoneFirst) {
+                        Log.i("PhoneTurn starting", "cellState=" + cellState[0] + cellState[1] + cellState[2] + cellState[3] + cellState[4] + cellState[5] + cellState[6] + cellState[7] + cellState[8] + ".");
+                        message.setText("My Turn");
+                        phoneTurn();
+                    } else {
+                        message.setText("Your Turn");
+                    }
+                }
+            }
+            //imageView.setImageResource(mThumbIDs[position]);
             return imageView;
         }
     }

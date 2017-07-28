@@ -2,6 +2,7 @@ package com.example.android.tictacduo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,10 +30,10 @@ public class MainActivity
 
     public void playPhone(View view)
     {
-        paramView = new Bundle();
-        paramView.putInt("PROGRESS", 100);
+        Bundle bundle = new Bundle();
+        bundle.putInt("PROGRESS", 100);
         Intent localIntent = new Intent(this, PlayPhone1.class);
-        localIntent.putExtras(paramView);
+        localIntent.putExtras(bundle);
         startActivity(localIntent);
         overridePendingTransition(0, 0);
         finish();
