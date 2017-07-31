@@ -16,8 +16,9 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-public class PlaySharing extends AppCompatActivity {
+public class PlayByAir extends AppCompatActivity {
 
+    //turn data sent to google
     Boolean gameOver = false;
     Boolean xTurn = true;
 
@@ -25,7 +26,15 @@ public class PlaySharing extends AppCompatActivity {
 
     int move = -1; //which move just happened:  going from 0 to 8 (nine possible moves), negative 1 means no move yet
 
-    RadioButton playSharingButton;
+    moveTrack[] moveTracker = new moveTrack[9];  //keeps track of what spot is taken in each move and who took it
+    class moveTrack {
+        int spot = -1;  //minus 1 means the spot is not taken
+        ImageView v;
+        boolean xTurn;
+    }
+
+    //turn data internal to this device
+    RadioButton playByAirButton;
 
     TextView message;
     TextView redoText;
@@ -35,12 +44,6 @@ public class PlaySharing extends AppCompatActivity {
     ImageView undoGraphic;
     ImageView winningLine;
 
-    moveTrack[] moveTracker = new moveTrack[9];  //keeps track of what spot is taken in each move and who took it
-    class moveTrack {
-        int spot = -1;  //minus 1 means the spot is not taken
-        ImageView v;
-        boolean xTurn;
-    }
 
     AlertDialog.Builder alert;
     public void displayAlert(View paramView){alert.show();}
@@ -49,14 +52,14 @@ public class PlaySharing extends AppCompatActivity {
     protected void onCreate(Bundle paramBundle)
     {
         super.onCreate(paramBundle);
-        setContentView(R.layout.activity_play_sharing);
+        setContentView(R.layout.activity_play_by_air);
         Intent intent = getIntent();
 
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        playSharingButton = ((RadioButton)findViewById(R.id.play_sharing_button));
-        playSharingButton.setChecked(true);
+        playByAirButton = ((RadioButton)findViewById(R.id.play_by_air_button));
+        playByAirButton.setChecked(true);
 
         message = ((TextView)findViewById(R.id.message));
         redoText = ((TextView)findViewById(R.id.redo_text));
@@ -172,12 +175,35 @@ public class PlaySharing extends AppCompatActivity {
     }
 
     public void playSharing(View view) {
-        // if playSharing button is clicked then do nothing
+        RadioButton playSharingButton = (RadioButton)findViewById(R.id.play_sharing_button);
+        final Intent localIntent = new Intent(this, PlaySharing.class);
+        alert = new AlertDialog.Builder(this);
+        alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {startActivity(localIntent);
+                overridePendingTransition(0, 0);
+                finish();}});
+        alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                return;
+            }
+        });
+        alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                return;
+            }
+        });
+        playSharingButton.setChecked(false);
+        alert.setMessage("Do you want to start over, and play by sharing the phone?");
+        alert.show();
     }
 
     public void startOver(final View view)
     {
-        final Intent intent = new Intent(this, PlaySharing.class);
+        final Intent intent = new Intent(this, PlayByAir.class);
         if (gameOver)
         {
             startActivity(intent);
@@ -185,18 +211,18 @@ public class PlaySharing extends AppCompatActivity {
             finish();
             return;
         }
-        this.alert = new AlertDialog.Builder(this);
-        this.alert.setPositiveButton("YES", new DialogInterface.OnClickListener()
+        alert = new AlertDialog.Builder(this);
+        alert.setPositiveButton("YES", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                PlaySharing.this.startActivity(intent);
-                PlaySharing.this.overridePendingTransition(0, 0);
-                PlaySharing.this.finish();
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
             }
         });
-        this.alert.setNegativeButton("NO", new DialogInterface.OnClickListener()
+        alert.setNegativeButton("NO", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -204,7 +230,7 @@ public class PlaySharing extends AppCompatActivity {
                 return;
             }
         });
-        this.alert.setOnCancelListener(new DialogInterface.OnCancelListener()
+        alert.setOnCancelListener(new DialogInterface.OnCancelListener()
         {
             @Override
             public void onCancel(DialogInterface dialog)
@@ -212,44 +238,12 @@ public class PlaySharing extends AppCompatActivity {
                 return;
             }
         });
-        this.alert.setMessage("Do you want to start over?");
-        this.alert.show();
+        alert.setMessage("Do you want to start over?");
+        alert.show();
     }
 
     public void playByAir(View view)
-    {
-        RadioButton playByBluetoothButton = (RadioButton)findViewById(R.id.play_by_air_button);
-        final Intent localIntent = new Intent(this, PlayByAir.class);
-        this.alert = new AlertDialog.Builder(this);
-        this.alert.setPositiveButton("YES", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                PlaySharing.this.startActivity(localIntent);
-                PlaySharing.this.overridePendingTransition(0, 0);
-                PlaySharing.this.finish();
-            }
-        });
-        this.alert.setNegativeButton("NO", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which) 
-            {
-                return;
-            }
-        });
-        this.alert.setOnCancelListener(new DialogInterface.OnCancelListener()
-        {
-            @Override
-            public void onCancel(DialogInterface dialog) 
-            {
-                return;
-            }
-        });
-        playByBluetoothButton.setChecked(false);
-        this.alert.setMessage("Do you want to start over, and play by air?");
-        this.alert.show();
+    {//if playByAir button is clicked then do nothing
     }
 
     public void onUndo(View view)
@@ -268,11 +262,11 @@ public class PlaySharing extends AppCompatActivity {
         //turn redo button graphics on
         redoGraphic.setImageResource(R.drawable.redo);
         redoText.setText("redo");
-        
+
         if (move == -1) {
             //turn undo button graphics off
             undoGraphic.setImageResource(R.drawable.blank);
-            undoText.setText(""); 
+            undoText.setText("");
         }
     }
 
@@ -280,16 +274,16 @@ public class PlaySharing extends AppCompatActivity {
     {
         if (moveTracker[move + 1].spot == -1) {return;}
         move += 1;
-        
+
         cellState[moveTracker[move].spot] = moveTracker[move].xTurn ? 'X' : 'O';
-        
+
 
         if (moveTracker[move].xTurn) {
             moveTracker[move].v.setImageResource(R.drawable.x);
         } else {
             moveTracker[move].v.setImageResource(R.drawable.o);
         }
-        
+
         xTurn = !xTurn;
         Log.i("onRedo", "xTurn = " + xTurn);
         if (xTurn) {
@@ -297,11 +291,11 @@ public class PlaySharing extends AppCompatActivity {
         } else {
             message.setText("O's Turn");
         }
-        
+
         //turn undo button graphics on
         undoGraphic.setImageResource(R.drawable.undo);
         undoText.setText("undo");
-        
+
         if (moveTracker[move+1].spot ==-1) {
             //turn redo button graphics off
             redoGraphic.setImageResource(R.drawable.undo);
@@ -459,19 +453,3 @@ public class PlaySharing extends AppCompatActivity {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

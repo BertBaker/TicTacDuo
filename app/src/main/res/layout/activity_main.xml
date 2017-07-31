@@ -35,11 +35,11 @@
 
         <RadioButton
             android:textSize="13dp"
-            android:id="@+id/play_by_bluetooth_button"
+            android:id="@+id/play_by_air_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play by\nBluetooth"
+            android:text="Play by\nAir"
             android:layout_alignParentRight="true"
-            android:onClick="playByBluetooth" />
+            android:onClick="playByAir" />
     </RelativeLayout>
 </LinearLayout>

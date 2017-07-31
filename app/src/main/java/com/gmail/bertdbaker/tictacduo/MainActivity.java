@@ -20,9 +20,9 @@ public class MainActivity
         paramBundle.setDisplayUseLogoEnabled(true);
     }
 
-    public void playByBluetooth(View paramView)
+    public void playByAir(View paramView)
     {
-        startActivity(new Intent(this, PlayByBluetooth.class));
+        startActivity(new Intent(this, PlayByAir.class));
         overridePendingTransition(0, 0);
         finish();
     }

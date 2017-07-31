@@ -227,9 +227,9 @@ public class PlayPhoneN extends AppCompatActivity {
         alert.show();
     }
 
-    public void playByBluetooth(View view) {
-        RadioButton playByBluetoothButton = (RadioButton)findViewById(R.id.play_by_bluetooth_button);
-        final Intent localIntent = new Intent(this, PlayByBluetooth.class);
+    public void playByAir(View view) {
+        RadioButton playByBluetoothButton = (RadioButton)findViewById(R.id.play_by_air_button);
+        final Intent localIntent = new Intent(this, PlayByAir.class);
         alert = new AlertDialog.Builder(this);
         alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
@@ -250,7 +250,7 @@ public class PlayPhoneN extends AppCompatActivity {
             }
         });
         playByBluetoothButton.setChecked(false);
-        alert.setMessage("Do you want to start over, and play by bluetooth?");
+        alert.setMessage("Do you want to start over, and play by air?");
         alert.show();
     }
 
