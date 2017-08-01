@@ -40,7 +40,7 @@
             android:id="@+id/play_by_air_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play by\nAir"
+            android:text="Play\nby Air"
             android:layout_alignParentRight="true"
             android:onClick="playByAir"
             />

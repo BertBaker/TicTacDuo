@@ -18,20 +18,8 @@ import android.widget.TextView;
 
 public class PlayByAir extends AppCompatActivity {
 
-    //turn data sent to google
-    Boolean gameOver = false;
-    Boolean xTurn = true;
-
-    char[] cellState = {' ', ' ',' ', ' ', ' ', ' ', ' ', ' ', ' '};  //options are X, O, and space
-
-    int move = -1; //which move just happened:  going from 0 to 8 (nine possible moves), negative 1 means no move yet
-
-    moveTrack[] moveTracker = new moveTrack[9];  //keeps track of what spot is taken in each move and who took it
-    class moveTrack {
-        int spot = -1;  //minus 1 means the spot is not taken
-        ImageView v;
-        boolean xTurn;
-    }
+    //turn data sent to and from google
+    public byte[] persistantData;
 
     //turn data internal to this device
     RadioButton playByAirButton;
@@ -44,13 +32,13 @@ public class PlayByAir extends AppCompatActivity {
     ImageView undoGraphic;
     ImageView winningLine;
 
+    ImageView[] imageViewArray = {null, null, null, null, null, null, null, null, null};
 
     AlertDialog.Builder alert;
     public void displayAlert(View paramView){alert.show();}
 
     @Override
-    protected void onCreate(Bundle paramBundle)
-    {
+    protected void onCreate(Bundle paramBundle) {
         super.onCreate(paramBundle);
         setContentView(R.layout.activity_play_by_air);
         Intent intent = getIntent();
@@ -69,10 +57,18 @@ public class PlayByAir extends AppCompatActivity {
         undoGraphic = ((ImageView)findViewById(R.id.undo_graphic));
         winningLine = ((ImageView)findViewById(R.id.winning_line));
 
+        TurnData mTurnData;
+        mTurnData = new TurnData();
         int i = 0;
-        while (i < moveTracker.length) {
-            moveTracker[i] = new moveTrack();
+        while (i < mTurnData.moveTracker.length) {
+            mTurnData.moveTracker[i] = new TurnData.moveTrack();
             i += 1;}
+
+        Log.i("onCreate", "persistantData" + persistantData);
+
+        persistantData = mTurnData.toGoogle();
+
+        Log.i("onCreate", "persistantData" + persistantData);
 
         GridView gridview = (GridView)findViewById(R.id.gridview);
         gridview.setAdapter(new ImageAdapter(this));
@@ -80,12 +76,17 @@ public class PlayByAir extends AppCompatActivity {
         {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id)
             {
+
+                TurnData mTurnData = TurnData.fromGoogle(persistantData);
+
                 ImageView imageView = (ImageView) v;
 
-                if ((cellState[position] != ' ') || (gameOver)) {
+                Log.i("GridView", "cellState=" + mTurnData.cellState[0] + mTurnData.cellState[1] + mTurnData.cellState[2] + mTurnData.cellState[3] + mTurnData.cellState[4] + mTurnData.cellState[5] + mTurnData.cellState[6] + mTurnData.cellState[7] + mTurnData.cellState[8] + ".");
+
+                if ((mTurnData.cellState[position] != ' ') || (mTurnData.gameOver)) {
                     return;
                 }
-                if (xTurn) {
+                if (mTurnData.xTurn) {
                     imageView.setImageResource(R.drawable.x);
                     message.setText("O's Turn");
                 } else {
@@ -93,24 +94,25 @@ public class PlayByAir extends AppCompatActivity {
                     message.setText("X's Turn");
                 }
 
-                move++;
+                mTurnData.move++;
 
-                moveTracker[move].spot = position;
-                moveTracker[move].xTurn = xTurn;
-                moveTracker[move].v = imageView;
+                Log.i("GridView", "persistantData" + persistantData);
+
+                mTurnData.moveTracker[mTurnData.move].spot = position;
+                mTurnData.moveTracker[mTurnData.move].xTurn = mTurnData.xTurn;
 
                 //null out the rest of the moveTracker now that we are moving forward
-                int j = move + 1;
+                int j = mTurnData.move + 1;
                 while (j < 9) {
-                    moveTracker[j].spot = -1;
+                    mTurnData.moveTracker[j].spot = -1;
                     j += 1;
                 }
 
-                cellState[position] = xTurn ? 'X' : 'O';
+                mTurnData.cellState[position] = mTurnData.xTurn ? 'X' : 'O';
 
-                gameOver = checkBoard();
+                mTurnData.gameOver = checkBoard(mTurnData);
 
-                if (gameOver) {
+                if (mTurnData.gameOver) {
                     //make sure undo button graphics off
                     undoGraphic.setImageResource(R.drawable.blank);
                     undoText.setText("");
@@ -124,15 +126,17 @@ public class PlayByAir extends AppCompatActivity {
                 redoGraphic.setImageResource(R.drawable.blank);
                 redoText.setText("");
 
-                xTurn = !xTurn;
-                Log.i("GridView", "xTurn = " + xTurn);
+                mTurnData.xTurn = !mTurnData.xTurn;
+                Log.i("GridView", "xTurn = " + mTurnData.xTurn);
+
+                persistantData = mTurnData.toGoogle();
+
             }
 
         });
     }
 
-    public void playPhone(View view)
-    {
+    public void playPhone(View view) {
         RadioButton playPhoneButton = (RadioButton)findViewById(R.id.play_phone_button);
 
         final Intent localIntent = new Intent(this, PlayPhone1.class);
@@ -201,10 +205,15 @@ public class PlayByAir extends AppCompatActivity {
         alert.show();
     }
 
-    public void startOver(final View view)
-    {
+    public void playByAir(View view) {//if playByAir button is clicked then do nothing
+    }
+
+    public void startOver(final View view) {
         final Intent intent = new Intent(this, PlayByAir.class);
-        if (gameOver)
+
+        TurnData mTurnData = TurnData.fromGoogle(persistantData);
+
+        if (mTurnData.gameOver)
         {
             startActivity(intent);
             overridePendingTransition(0, 0);
@@ -242,19 +251,21 @@ public class PlayByAir extends AppCompatActivity {
         alert.show();
     }
 
-    public void playByAir(View view)
-    {//if playByAir button is clicked then do nothing
-    }
+    public void onUndo(View view) {
 
-    public void onUndo(View view)
-    {
-        if ((this.move == -1) || (gameOver)) {return;}
-        cellState[moveTracker[move].spot] = ' ';
-        moveTracker[move].v.setImageResource(R.drawable.blank);
-        move -= 1;
-        xTurn = !xTurn;
-        Log.i("onUndo", "xTurn = " + xTurn);
-        if (xTurn) {
+        TurnData mTurnData = TurnData.fromGoogle(persistantData);
+
+        if ((mTurnData.move == -1) || (mTurnData.gameOver)) {return;}
+        mTurnData.cellState[mTurnData.moveTracker[mTurnData.move].spot] = ' ';
+        imageViewArray[mTurnData.moveTracker[mTurnData.move].spot].setImageResource(R.drawable.blank);
+
+        Log.i("onUndo", "spot = " + mTurnData.moveTracker[mTurnData.move].spot);
+        Log.i("onUndo", "imageViewArray[" + mTurnData.moveTracker[mTurnData.move].spot +  "] = " + imageViewArray[mTurnData.moveTracker[mTurnData.move].spot]);
+
+        mTurnData.move -= 1;
+        mTurnData.xTurn = !mTurnData.xTurn;
+        Log.i("onUndo", "xTurn = " + mTurnData.xTurn);
+        if (mTurnData.xTurn) {
             message.setText("X's Turn");
         } else {
             message.setText("O's Turn");
@@ -263,30 +274,38 @@ public class PlayByAir extends AppCompatActivity {
         redoGraphic.setImageResource(R.drawable.redo);
         redoText.setText("redo");
 
-        if (move == -1) {
+        if (mTurnData.move == -1) {
             //turn undo button graphics off
             undoGraphic.setImageResource(R.drawable.blank);
             undoText.setText("");
         }
+
+        persistantData = mTurnData.toGoogle();
     }
 
-    public void onRedo(View view)
-    {
-        if (moveTracker[move + 1].spot == -1) {return;}
-        move += 1;
+    public void onRedo(View view) {
 
-        cellState[moveTracker[move].spot] = moveTracker[move].xTurn ? 'X' : 'O';
+        TurnData mTurnData = TurnData.fromGoogle(persistantData);
+
+        if (mTurnData.moveTracker[mTurnData.move + 1].spot == -1) {return;}
+        mTurnData.move += 1;
+
+        mTurnData.cellState[mTurnData.moveTracker[mTurnData.move].spot] = mTurnData.moveTracker[mTurnData.move].xTurn ? 'X' : 'O';
 
 
-        if (moveTracker[move].xTurn) {
-            moveTracker[move].v.setImageResource(R.drawable.x);
+        if (mTurnData.moveTracker[mTurnData.move].xTurn) {
+            imageViewArray[mTurnData.moveTracker[mTurnData.move].spot].setImageResource(R.drawable.x);
         } else {
-            moveTracker[move].v.setImageResource(R.drawable.o);
+            imageViewArray[mTurnData.moveTracker[mTurnData.move].spot].setImageResource(R.drawable.o);
         }
 
-        xTurn = !xTurn;
-        Log.i("onRedo", "xTurn = " + xTurn);
-        if (xTurn) {
+        Log.i("onRedo", "spot = " + mTurnData.moveTracker[mTurnData.move].spot);
+        Log.i("onRedo", "imageViewArray[" + mTurnData.moveTracker[mTurnData.move].spot +  "] = " + imageViewArray[mTurnData.moveTracker[mTurnData.move].spot]);
+
+
+        mTurnData.xTurn = !mTurnData.xTurn;
+        Log.i("onRedo", "xTurn = " + mTurnData.xTurn);
+        if (mTurnData.xTurn) {
             message.setText("X's Turn");
         } else {
             message.setText("O's Turn");
@@ -296,112 +315,113 @@ public class PlayByAir extends AppCompatActivity {
         undoGraphic.setImageResource(R.drawable.undo);
         undoText.setText("undo");
 
-        if (moveTracker[move+1].spot ==-1) {
+        if (mTurnData.moveTracker[mTurnData.move+1].spot ==-1) {
             //turn redo button graphics off
-            redoGraphic.setImageResource(R.drawable.undo);
+            redoGraphic.setImageResource(R.drawable.blank);
             redoText.setText("");
         }
+
+        persistantData = mTurnData.toGoogle();
     }
 
-    public Boolean checkBoard()
-    {
-        if ((cellState[0] == 'X') && (cellState[1] == 'X') && (cellState[2] == 'X'))
+    public Boolean checkBoard(TurnData mTurnData) {
+        if ((mTurnData.cellState[0] == 'X') && (mTurnData.cellState[1] == 'X') && (mTurnData.cellState[2] == 'X'))
         {
             winningLine.setImageResource(R.drawable.row1);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[3] == 'X') && (cellState[4] == 'X') && (cellState[5] == 'X'))
+        if ((mTurnData.cellState[3] == 'X') && (mTurnData.cellState[4] == 'X') && (mTurnData.cellState[5] == 'X'))
         {
             winningLine.setImageResource(R.drawable.row2);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[6] == 'X') && (cellState[7] == 'X') && (cellState[8] == 'X'))
+        if ((mTurnData.cellState[6] == 'X') && (mTurnData.cellState[7] == 'X') && (mTurnData.cellState[8] == 'X'))
         {
             winningLine.setImageResource(R.drawable.row3);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[0] == 'X') && (cellState[3] == 'X') && (cellState[6] == 'X'))
+        if ((mTurnData.cellState[0] == 'X') && (mTurnData.cellState[3] == 'X') && (mTurnData.cellState[6] == 'X'))
         {
             winningLine.setImageResource(R.drawable.column1);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[1] == 'X') && (cellState[4] == 'X') && (cellState[7] == 'X'))
+        if ((mTurnData.cellState[1] == 'X') && (mTurnData.cellState[4] == 'X') && (mTurnData.cellState[7] == 'X'))
         {
             winningLine.setImageResource(R.drawable.column2);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[2] == 'X') && (cellState[5] == 'X') && (cellState[8] == 'X'))
+        if ((mTurnData.cellState[2] == 'X') && (mTurnData.cellState[5] == 'X') && (mTurnData.cellState[8] == 'X'))
         {
             winningLine.setImageResource(R.drawable.column3);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[0] == 'X') && (cellState[4] == 'X') && (cellState[8] == 'X'))
+        if ((mTurnData.cellState[0] == 'X') && (mTurnData.cellState[4] == 'X') && (mTurnData.cellState[8] == 'X'))
         {
             winningLine.setImageResource(R.drawable.diagonal1);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[6] == 'X') && (cellState[4] == 'X') && (cellState[2] == 'X'))
+        if ((mTurnData.cellState[6] == 'X') && (mTurnData.cellState[4] == 'X') && (mTurnData.cellState[2] == 'X'))
         {
             winningLine.setImageResource(R.drawable.diagonal2);
             message.setText("X Wins!");
             return true;
         }
-        if ((cellState[0] == 'O') && (cellState[1] == 'O') && (cellState[2] == 'O'))
+        if ((mTurnData.cellState[0] == 'O') && (mTurnData.cellState[1] == 'O') && (mTurnData.cellState[2] == 'O'))
         {
             winningLine.setImageResource(R.drawable.row1);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[3] == 'O') && (cellState[4] == 'O') && (cellState[5] == 'O'))
+        if ((mTurnData.cellState[3] == 'O') && (mTurnData.cellState[4] == 'O') && (mTurnData.cellState[5] == 'O'))
         {
             winningLine.setImageResource(R.drawable.row2);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[6] == 'O') && (cellState[7] == 'O') && (cellState[8] == 'O'))
+        if ((mTurnData.cellState[6] == 'O') && (mTurnData.cellState[7] == 'O') && (mTurnData.cellState[8] == 'O'))
         {
             winningLine.setImageResource(R.drawable.row3);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[0] == 'O') && (cellState[3] == 'O') && (cellState[6] == 'O'))
+        if ((mTurnData.cellState[0] == 'O') && (mTurnData.cellState[3] == 'O') && (mTurnData.cellState[6] == 'O'))
         {
             winningLine.setImageResource(R.drawable.column1);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[1] == 'O') && (cellState[4] == 'O') && (cellState[7] == 'O'))
+        if ((mTurnData.cellState[1] == 'O') && (mTurnData.cellState[4] == 'O') && (mTurnData.cellState[7] == 'O'))
         {
             winningLine.setImageResource(R.drawable.column2);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[2] == 'O') && (cellState[5] == 'O') && (cellState[8] == 'O'))
+        if ((mTurnData.cellState[2] == 'O') && (mTurnData.cellState[5] == 'O') && (mTurnData.cellState[8] == 'O'))
         {
             winningLine.setImageResource(R.drawable.column3);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[0] == 'O') && (cellState[4] == 'O') && (cellState[8] == 'O'))
+        if ((mTurnData.cellState[0] == 'O') && (mTurnData.cellState[4] == 'O') && (mTurnData.cellState[8] == 'O'))
         {
             winningLine.setImageResource(R.drawable.diagonal1);
             message.setText("O Wins!");
             return true;
         }
-        if ((cellState[6] == 'O') && (cellState[4] == 'O') && (cellState[2] == 'O'))
+        if ((mTurnData.cellState[6] == 'O') && (mTurnData.cellState[4] == 'O') && (mTurnData.cellState[2] == 'O'))
         {
             winningLine.setImageResource(R.drawable.diagonal2);
             message.setText("O Wins!");
             return true;
         }
-        if (move == 8)
+        if (mTurnData.move == 8)
         {
             message.setText("Cat's Game");
             return true;
@@ -409,8 +429,7 @@ public class PlayByAir extends AppCompatActivity {
         return false;
     }
 
-    public class ImageAdapter extends BaseAdapter
-    {
+    public class ImageAdapter extends BaseAdapter {
         private Context mContext;
         //references to out images
         private Integer[] mThumbIds = { R.drawable.blank, R.drawable.blank, R.drawable.blank, R.drawable.blank, R.drawable.blank, R.drawable.blank,
@@ -449,6 +468,7 @@ public class PlayByAir extends AppCompatActivity {
             }
 
             imageView.setImageResource(mThumbIds[position]);
+            imageViewArray[position]=imageView;
             return imageView;
         }
     }
